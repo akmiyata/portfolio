@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import DbtDAG from "./DbtDAG";
 
 const COLORS = {
   bg: "#0a0a0f",
@@ -543,7 +544,8 @@ export default function Portfolio() {
             View My Work →
           </a>
           <a
-            href="#resume"
+            href="/adam-miyata-resume.pdf"
+            download="Adam-Miyata-Resume.pdf"
             style={{
               display: "inline-block",
               padding: "0.85rem 2rem",
@@ -585,21 +587,21 @@ export default function Portfolio() {
           <div>
             <p style={{ color: COLORS.textDim, lineHeight: 1.8, fontSize: "1rem" }}>
               I'm an Analytics Engineering leader based in the Seattle area,
-              currently at Bristol Myers Squibb where I own the entire data
-              infrastructure for Cell Therapy — 350+ dbt models that I built from
-              the ground up after migrating 30+ AWS Glue scripts.
+              currently at Bristol Myers Squibb where I architect dbt pipelines,
+              canonical data models, and analytics platforms that enable data-driven
+              decisions across Cell Therapy R&D, Manufacturing, and Commercial teams.
             </p>
             <p style={{ color: COLORS.textDim, lineHeight: 1.8, fontSize: "1rem", marginTop: "1rem" }}>
-              My background is unusual: a BA in Mathematics, an MS in Electrical
-              Engineering, and two decades of building quantitative systems across
-              actuarial science, financial consulting, and life sciences. I thrive
-              in ambiguity, love building from zero to one, and have a track record
-              of scaling data infrastructure that others said couldn't be done with
-              the resources available.
+              My background is unusual: a BA in Mathematics from Western Washington
+              University, an MS in Electrical Engineering from CU Boulder (3.99 GPA),
+              and two decades of building quantitative systems across actuarial science,
+              financial consulting, and life sciences. I thrive in ambiguity, love
+              building from zero to one, and have a track record of scaling data
+              infrastructure that others said couldn't be done with the resources available.
             </p>
             <p style={{ color: COLORS.textDim, lineHeight: 1.8, fontSize: "1rem", marginTop: "1rem" }}>
-              I'm passionate about the intersection of data engineering and AI,
-              and I'm exploring how tools like MCP servers and LLMs can transform
+              I'm passionate about AI safety and the intersection of data engineering
+              and AI. I'm exploring how tools like MCP servers and LLMs can transform
               analytics workflows.
             </p>
           </div>
@@ -625,12 +627,12 @@ export default function Portfolio() {
                 Core Stack
               </div>
               {[
-                { category: "Data Modeling", tools: "dbt, SQL, Snowflake" },
-                { category: "Orchestration", tools: "Airflow, AWS Glue" },
-                { category: "Languages", tools: "SQL, Python, JavaScript" },
-                { category: "Cloud", tools: "AWS, Snowflake" },
-                { category: "Tools", tools: "Git, GitHub, VS Code" },
-                { category: "Exploring", tools: "MCP, LLM integrations, Claude API" },
+                { category: "Data Modeling", tools: "dbt, SQL, Snowflake, Databricks" },
+                { category: "Platforms", tools: "Spark, Redshift, Presto/Trino" },
+                { category: "Languages", tools: "SQL, Python, JavaScript, C" },
+                { category: "Cloud", tools: "AWS (Lambda, DynamoDB, SQS, API GW)" },
+                { category: "Visualization", tools: "Tableau, Spotfire, Power BI" },
+                { category: "Exploring", tools: "MCP, Claude API, OpenAI API" },
               ].map((item, i) => (
                 <div
                   key={i}
@@ -718,6 +720,57 @@ export default function Portfolio() {
             tags={["Node.js", "mineflayer", "OpenAI API", "JavaScript", "AI Agents"]}
           />
         </div>
+
+        {/* Interactive DAG Demo */}
+        <div style={{ marginTop: "3rem" }}>
+          <div
+            style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: "0.75rem",
+              color: COLORS.accent,
+              textTransform: "uppercase",
+              letterSpacing: "0.1em",
+              marginBottom: "0.75rem",
+            }}
+          >
+            Interactive Demo
+          </div>
+          <h3
+            style={{
+              fontSize: "1.5rem",
+              fontWeight: 600,
+              color: COLORS.text,
+              margin: "0 0 0.75rem 0",
+              fontFamily: "'Space Grotesk', sans-serif",
+              lineHeight: 1.3,
+            }}
+          >
+            dbt Lineage Explorer
+          </h3>
+          <p
+            style={{
+              color: COLORS.textDim,
+              lineHeight: 1.7,
+              fontSize: "0.95rem",
+              marginBottom: "1.5rem",
+              maxWidth: "600px",
+            }}
+          >
+            An interactive visualization of data model lineage with join criteria.
+            Drag nodes to rearrange, hover to highlight relationships, click to inspect details.
+            Scroll to zoom, drag background to pan.
+          </p>
+          <div
+            style={{
+              borderRadius: "12px",
+              overflow: "hidden",
+              border: `1px solid ${COLORS.border}`,
+              height: "550px",
+            }}
+          >
+            <DbtDAG />
+          </div>
+        </div>
       </div>
 
       {/* ─── Blog ─── */}
@@ -731,21 +784,26 @@ export default function Portfolio() {
             padding: "1rem 2rem",
           }}
         >
-          <BlogPost
-            title="Lessons from Managing 350+ dbt Models Solo"
-            date="2026"
-            readTime="8 min"
-            excerpt="Patterns, conventions, and hard-won lessons from maintaining a massive dbt project as a one-person team. What works, what doesn't, and what I'd do differently."
-          />
+          <div
+            onClick={() => { window.location.hash = '#/blog/rebuilding-legacy-pipeline'; }}
+            style={{ cursor: 'pointer' }}
+          >
+            <BlogPost
+              title="Rebuilding a Legacy Data Pipeline in dbt: Patterns That Scaled"
+              date="Feb 2026"
+              readTime="12 min"
+              excerpt="Patterns, conventions, and hard-won lessons from maintaining a large dbt project through cross-functional collaboration. What works, what doesn't, and what I'd do differently."
+            />
+          </div>
           <BlogPost
             title="From Actuarial Science to Analytics Engineering"
-            date="2026"
+            date="Coming Soon"
             readTime="6 min"
             excerpt="How a background in quantitative finance and risk modeling shaped my approach to data engineering — and why the skills transfer better than you'd think."
           />
           <BlogPost
             title="Connecting LLMs to Your Data Stack with MCP"
-            date="2026"
+            date="Coming Soon"
             readTime="10 min"
             excerpt="A practical guide to building MCP server integrations that let AI assistants interact with your dbt models, query your warehouse, and understand your data lineage."
           />
@@ -759,7 +817,7 @@ export default function Portfolio() {
             fontStyle: "italic",
           }}
         >
-          Blog posts coming soon — drafts in progress.
+          More posts in progress.
         </p>
       </div>
 
@@ -777,18 +835,25 @@ export default function Portfolio() {
           {/* Timeline */}
           {[
             {
-              period: "2021 – Present",
+              period: "2022 – Present",
               role: "Manager, Analytics Engineering",
               company: "Bristol Myers Squibb",
               description:
-                "Sole domain owner for Cell Therapy data infrastructure. Built 350+ dbt models, migrated from AWS Glue, and serve as the single point of contact for all analytics engineering across the commercial Cell Therapy organization.",
+                "Lead Cell Therapy data architecture for enterprise Unified Data Model. Migrated 30+ AWS Glue scripts to 200+ dbt models. Own end-to-end data infrastructure, building Python automation that reduced manual processing by 80 hrs/week. Managing workload previously handled by 10-15 FTEs.",
             },
             {
-              period: "Previous Roles",
-              role: "Senior Quantitative Analyst & Consultant",
-              company: "Financial Services & Life Sciences",
+              period: "2019 – 2022",
+              role: "Senior Pension Processor",
+              company: "Zenith American Solutions",
               description:
-                "20 years of quantitative experience across actuarial science, financial consulting, and life sciences analytics. Built risk models, pricing systems, and analytical infrastructure across multiple industries.",
+                "Designed benefit verification tools for pension plans serving 200,000+ participants. Implemented automation saving 80 hours/week of labor.",
+            },
+            {
+              period: "2016 – 2019",
+              role: "Sr. Consultant / Sr. Benefits Analyst",
+              company: "Pension Live / Willis Towers Watson",
+              description:
+                "Data systems implementation, benefit calculation tools, pension valuation data pipelines. Contributed to $1M contract win through technical documentation.",
             },
           ].map((item, i) => (
             <div
@@ -878,7 +943,7 @@ export default function Portfolio() {
                   MS Electrical Engineering
                 </div>
                 <div style={{ color: COLORS.textMuted, fontSize: "0.85rem" }}>
-                  University details here
+                  University of Colorado – Boulder · GPA: 3.99
                 </div>
               </div>
               <div>
@@ -886,7 +951,7 @@ export default function Portfolio() {
                   BA Mathematics
                 </div>
                 <div style={{ color: COLORS.textMuted, fontSize: "0.85rem" }}>
-                  University details here
+                  Western Washington University
                 </div>
               </div>
             </div>
@@ -895,7 +960,8 @@ export default function Portfolio() {
           {/* Download button */}
           <div style={{ marginTop: "2.5rem" }}>
             <a
-              href="#"
+              href="/adam-miyata-resume.pdf"
+              download="Adam-Miyata-Resume.pdf"
               style={{
                 display: "inline-block",
                 padding: "0.85rem 2rem",
@@ -933,9 +999,9 @@ export default function Portfolio() {
           }}
         >
           {[
-            { label: "GitHub", href: "https://github.com/yourusername" },
-            { label: "LinkedIn", href: "https://linkedin.com/in/yourusername" },
-            { label: "Email", href: "mailto:adam@miyata.dev" },
+            { label: "GitHub", href: "https://github.com/akmiyata" },
+            { label: "LinkedIn", href: "https://linkedin.com/in/akmiyata" },
+            { label: "Email", href: "mailto:akmiyata@gmail.com" },
           ].map((link, i) => (
             <a
               key={i}
