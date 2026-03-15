@@ -1002,6 +1002,7 @@ export default function Portfolio() {
             { label: "GitHub", href: "https://github.com/akmiyata" },
             { label: "LinkedIn", href: "https://linkedin.com/in/akmiyata" },
             { label: "Email", href: "mailto:akmiyata@gmail.com" },
+            { label: "FIRE Calculator", href: "#/fire" },
           ].map((link, i) => (
             <a
               key={i}
