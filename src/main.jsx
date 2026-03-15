@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import ReactDOM from 'react-dom/client'
 import Portfolio from './Portfolio'
 import BlogPostPage from './BlogPostPage'
+import FIRECalculator from './FIRECalculator'
 
 function App() {
   const [page, setPage] = useState(window.location.hash);
@@ -21,6 +22,10 @@ function App() {
         }}
       />
     );
+  }
+
+  if (page === '#/fire') {
+    return <FIRECalculator />;
   }
 
   return <Portfolio />;
