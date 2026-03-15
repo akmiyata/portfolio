@@ -531,15 +531,20 @@ export default function FIRECalculator() {
                   <XAxis dataKey="age" stroke="#3a4a5e" tick={{ fill: "#5a6a7e", fontSize: 11 }} />
                   <YAxis stroke="#3a4a5e" tick={{ fill: "#5a6a7e", fontSize: 11 }} tickFormatter={fmtAxis} />
                   <Tooltip content={<CustomTooltip />} />
+                  <Legend
+                    verticalAlign="top"
+                    height={36}
+                    wrapperStyle={{ fontSize: "11px", color: "#8a9bb0" }}
+                  />
                   <ReferenceLine x={inputs.retireAge} stroke="#ff9800" strokeDasharray="5 3" label={{
                     value: "Retire", fill: "#ff9800", fontSize: 11, position: "top",
                   }} />
                   <Area
-                    type="monotone" dataKey="balance" name="Portfolio"
+                    type="monotone" dataKey="balance" name="Portfolio Balance"
                     stroke="#4fc3f7" strokeWidth={2} fill="url(#balGrad)"
                   />
                   <Line
-                    type="monotone" dataKey="fireNumber" name="FIRE Number"
+                    type="monotone" dataKey="fireNumber" name="FIRE Target"
                     stroke="#ff5252" strokeWidth={1.5} strokeDasharray="4 3" dot={false}
                   />
                 </AreaChart>
@@ -573,16 +578,25 @@ export default function FIRECalculator() {
                       <XAxis dataKey="age" stroke="#3a4a5e" tick={{ fill: "#5a6a7e", fontSize: 11 }} />
                       <YAxis stroke="#3a4a5e" tick={{ fill: "#5a6a7e", fontSize: 11 }} tickFormatter={fmtAxis} />
                       <Tooltip content={<MCTooltip />} />
+                      <Legend
+                        verticalAlign="top"
+                        height={36}
+                        wrapperStyle={{ fontSize: "11px", color: "#8a9bb0" }}
+                        payload={[
+                          { value: "Median (50th)", type: "line", color: "#4fc3f7" },
+                          { value: "10th-90th Percentile", type: "rect", color: "rgba(79,195,247,0.3)" },
+                        ]}
+                      />
                       <ReferenceLine x={inputs.retireAge} stroke="#ff9800" strokeDasharray="5 3" label={{
                         value: "Retire", fill: "#ff9800", fontSize: 11, position: "top",
                       }} />
-                      <Area type="monotone" dataKey="p90" name="90th" stroke="none" fill="url(#mc90)" />
-                      <Area type="monotone" dataKey="p75" name="75th" stroke="none" fill="url(#mc75)" />
-                      <Area type="monotone" dataKey="p25" name="25th" stroke="none" fill="url(#mc75)" />
-                      <Area type="monotone" dataKey="p10" name="10th" stroke="none" fill="url(#mc90)" />
-                      <Line type="monotone" dataKey="p50" name="Median" stroke="#4fc3f7" strokeWidth={2} dot={false} />
-                      <Line type="monotone" dataKey="p90" name="90th pctl" stroke="#2a5a7a" strokeWidth={1} strokeDasharray="3 3" dot={false} />
-                      <Line type="monotone" dataKey="p10" name="10th pctl" stroke="#2a5a7a" strokeWidth={1} strokeDasharray="3 3" dot={false} />
+                      <Area type="monotone" dataKey="p90" name="90th" stroke="none" fill="url(#mc90)" legendType="none" />
+                      <Area type="monotone" dataKey="p75" name="75th" stroke="none" fill="url(#mc75)" legendType="none" />
+                      <Area type="monotone" dataKey="p25" name="25th" stroke="none" fill="url(#mc75)" legendType="none" />
+                      <Area type="monotone" dataKey="p10" name="10th" stroke="none" fill="url(#mc90)" legendType="none" />
+                      <Line type="monotone" dataKey="p50" name="Median" stroke="#4fc3f7" strokeWidth={2} dot={false} legendType="none" />
+                      <Line type="monotone" dataKey="p90" name="90th pctl" stroke="#2a5a7a" strokeWidth={1} strokeDasharray="3 3" dot={false} legendType="none" />
+                      <Line type="monotone" dataKey="p10" name="10th pctl" stroke="#2a5a7a" strokeWidth={1} strokeDasharray="3 3" dot={false} legendType="none" />
                     </AreaChart>
                   </ResponsiveContainer>
                 )}
