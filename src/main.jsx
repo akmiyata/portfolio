@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import Portfolio from './Portfolio'
 import BlogPostPage from './BlogPostPage'
 import FIRECalculator from './FIRECalculator'
+import EstatePlanner from './EstatePlanner'
 
 function App() {
   const [page, setPage] = useState(window.location.hash);
@@ -26,6 +27,10 @@ function App() {
 
   if (page === '#/fire') {
     return <FIRECalculator />;
+  }
+
+  if (page === '#/estate') {
+    return <EstatePlanner />;
   }
 
   return <Portfolio />;
