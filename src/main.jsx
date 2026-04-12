@@ -4,6 +4,7 @@ import Portfolio from './Portfolio'
 import BlogPostPage from './BlogPostPage'
 import FIRECalculator from './FIRECalculator'
 import EstatePlanner from './EstatePlanner'
+import CommandCenter from './CommandCenter'
 
 function App() {
   const [page, setPage] = useState(window.location.hash);
@@ -31,6 +32,10 @@ function App() {
 
   if (page === '#/estate') {
     return <EstatePlanner />;
+  }
+
+  if (page === '#/command-center') {
+    return <CommandCenter />;
   }
 
   return <Portfolio />;
