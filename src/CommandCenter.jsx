@@ -34,29 +34,28 @@ export default function CommandCenter() {
   const editRef = useRef(null);
 
   useEffect(() => {
-    async function load() {
-      try {
-        const result = await window.storage.get(STORAGE_KEY);
-        if (result && result.value) {
-          setData(JSON.parse(result.value));
-        } else {
-          const init = {};
-          CATEGORIES.forEach((c) => (init[c.id] = []));
-          setData(init);
-        }
-      } catch {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        setData(JSON.parse(raw));
+      } else {
         const init = {};
         CATEGORIES.forEach((c) => (init[c.id] = []));
         setData(init);
       }
-      setLoading(false);
+    } catch {
+      const init = {};
+      CATEGORIES.forEach((c) => (init[c.id] = []));
+      setData(init);
     }
-    load();
+    setLoading(false);
   }, []);
 
   useEffect(() => {
     if (data) {
-      window.storage.set(STORAGE_KEY, JSON.stringify(data)).catch(() => {});
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      } catch {}
     }
   }, [data]);
 
