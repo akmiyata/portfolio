@@ -15,12 +15,13 @@ const COLORS = {
   borderHover: "#2d3f58",
 };
 
-const NAV_ITEMS = ["About", "Case Studies", "Blog", "Resume"];
+const NAV_ITEMS = ["About", "Case Studies", "Tools", "Blog", "Resume"];
 
 // ─── Animated Background Grid ───
 function GridBackground() {
   const canvasRef = useRef(null);
   useEffect(() => {
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     let animId;
@@ -35,8 +36,8 @@ function GridBackground() {
       mouse.x = e.clientX;
       mouse.y = e.clientY;
     };
-    window.addEventListener("mousemove", onMove);
-    const draw = () => {
+    if (!reduceMotion) window.addEventListener("mousemove", onMove);
+    const paint = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       const spacing = 60;
       const cols = Math.ceil(canvas.width / spacing) + 1;
@@ -60,13 +61,27 @@ function GridBackground() {
           ctx.fill();
         }
       }
-      animId = requestAnimationFrame(draw);
     };
-    draw();
+    const draw = () => {
+      paint();
+      if (!document.hidden) animId = requestAnimationFrame(draw);
+    };
+    const onVisibility = () => {
+      if (reduceMotion) return;
+      if (!document.hidden && !animId) draw();
+      else if (document.hidden && animId) {
+        cancelAnimationFrame(animId);
+        animId = null;
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    if (reduceMotion) paint();
+    else draw();
     return () => {
-      cancelAnimationFrame(animId);
+      if (animId) cancelAnimationFrame(animId);
       window.removeEventListener("resize", resize);
       window.removeEventListener("mousemove", onMove);
+      document.removeEventListener("visibilitychange", onVisibility);
     };
   }, []);
   return (
@@ -164,7 +179,7 @@ function Tag({ children }) {
 }
 
 // ─── Case Study Card ───
-function CaseStudyCard({ title, subtitle, description, tags, metrics }) {
+function CaseStudyCard({ title, subtitle, description, tags, metrics, status }) {
   const [hovered, setHovered] = useState(false);
   return (
     <div
@@ -180,20 +195,44 @@ function CaseStudyCard({ title, subtitle, description, tags, metrics }) {
         boxShadow: hovered
           ? `0 20px 40px rgba(0,0,0,0.3), 0 0 30px ${COLORS.accentDim}`
           : "0 4px 12px rgba(0,0,0,0.2)",
-        cursor: "pointer",
       }}
     >
       <div
         style={{
-          fontSize: "0.75rem",
-          color: COLORS.accent,
-          fontFamily: "'JetBrains Mono', monospace",
-          textTransform: "uppercase",
-          letterSpacing: "0.1em",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: "1rem",
           marginBottom: "0.75rem",
         }}
       >
-        {subtitle}
+        <div
+          style={{
+            fontSize: "0.75rem",
+            color: COLORS.accent,
+            fontFamily: "'JetBrains Mono', monospace",
+            textTransform: "uppercase",
+            letterSpacing: "0.1em",
+          }}
+        >
+          {subtitle}
+        </div>
+        {status && (
+          <div
+            style={{
+              fontSize: "0.7rem",
+              color: COLORS.textMuted,
+              fontFamily: "'JetBrains Mono', monospace",
+              letterSpacing: "0.05em",
+              padding: "0.2rem 0.6rem",
+              border: `1px solid ${COLORS.border}`,
+              borderRadius: "9999px",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {status}
+          </div>
+        )}
       </div>
       <h3
         style={{
@@ -424,13 +463,6 @@ export default function Portfolio() {
   const [activeSection, setActiveSection] = useState("about");
 
   useEffect(() => {
-    // Load fonts
-    const link1 = document.createElement("link");
-    link1.href =
-      "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap";
-    link1.rel = "stylesheet";
-    document.head.appendChild(link1);
-
     // Intersection observer for active nav
     const sections = document.querySelectorAll("[data-section]");
     const observer = new IntersectionObserver(
@@ -498,11 +530,9 @@ export default function Portfolio() {
             letterSpacing: "-0.03em",
           }}
         >
-          I build data
+          Analytics engineering
           <br />
-          infrastructure
-          <br />
-          <span style={{ color: COLORS.accent }}>at scale.</span>
+          <span style={{ color: COLORS.accent }}>that stays trusted.</span>
         </h1>
         <p
           style={{
@@ -513,10 +543,11 @@ export default function Portfolio() {
             marginBottom: "2.5rem",
           }}
         >
-          Analytics Engineering leader with 20 years of quantitative experience.
-          Currently sole domain owner of 350+ dbt models powering cell therapy
-          analytics at a Fortune 500 pharma company. Background spanning
-          financial consulting, actuarial science, and life sciences.
+          I'm Adam — sole owner of the 350+ model dbt domain powering cell-therapy
+          analytics at Bristol Myers Squibb, 180+ of which I rebuilt from 32
+          legacy AWS Glue scripts. Two decades of quantitative work across life
+          sciences, finance, and actuarial systems inform how I design pipelines
+          that hold up under scrutiny.
         </p>
         <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
           <a
@@ -574,7 +605,7 @@ export default function Portfolio() {
       </div>
 
       {/* ─── About ─── */}
-      <div style={containerStyle} data-section="about">
+      <section style={containerStyle} data-section="about">
         <SectionHeading number="01" title="About" id="about" />
         <div
           style={{
@@ -600,9 +631,10 @@ export default function Portfolio() {
               infrastructure that others said couldn't be done with the resources available.
             </p>
             <p style={{ color: COLORS.textDim, lineHeight: 1.8, fontSize: "1rem", marginTop: "1rem" }}>
-              I'm passionate about AI safety and the intersection of data engineering
-              and AI. I'm exploring how tools like MCP servers and LLMs can transform
-              analytics workflows.
+              Lately I've been deep in Claude Code agents and the MCP ecosystem —
+              prototyping tools that let analysts talk to dbt projects in natural
+              language, and mapping where LLMs genuinely speed data work up versus
+              where they just add confident-sounding noise.
             </p>
           </div>
           <div>
@@ -656,22 +688,21 @@ export default function Portfolio() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
+            gridTemplateColumns: "repeat(3, 1fr)",
             gap: "2rem",
             padding: "3rem 0",
             borderTop: `1px solid ${COLORS.border}`,
             borderBottom: `1px solid ${COLORS.border}`,
           }}
         >
-          <AnimatedStat value={350} suffix="+" label="dbt Models Managed" />
-          <AnimatedStat value={20} suffix="+" label="Years Experience" />
-          <AnimatedStat value={30} suffix="" label="Glue Scripts Migrated" />
-          <AnimatedStat value={200} suffix="+" label="Models Built From Scratch" />
+          <AnimatedStat value={350} suffix="+" label="dbt Models Owned" />
+          <AnimatedStat value={180} suffix="+" label="Rebuilt From Legacy Glue" />
+          <AnimatedStat value={20} suffix="+" label="Years Quantitative Work" />
         </div>
-      </div>
+      </section>
 
       {/* ─── Case Studies ─── */}
-      <div style={containerStyle} data-section="case-studies">
+      <section style={containerStyle} data-section="case-studies">
         <SectionHeading number="02" title="Case Studies" id="case-studies" />
         <div
           style={{
@@ -683,11 +714,11 @@ export default function Portfolio() {
           <CaseStudyCard
             subtitle="Data Infrastructure Migration"
             title="AWS Glue to dbt: Rebuilding Cell Therapy Analytics from Scratch"
-            description="Led the complete migration of 30+ AWS Glue ETL scripts into a modern dbt-based analytics platform. Designed and built 200+ data models from scratch, establishing the canonical data layer for the entire Cell Therapy commercial organization. The migration improved data reliability, reduced pipeline maintenance overhead, and enabled self-serve analytics for downstream stakeholders."
+            description="Led the complete migration of 32 AWS Glue PySpark scripts (~10,000 lines of embedded SQL) into a modern dbt-based analytics platform. Rebuilt 180+ models from raw sources across 8 source systems, establishing the canonical data layer for the entire Cell Therapy commercial organization. The migration improved data reliability, reduced pipeline maintenance overhead, and enabled self-serve analytics for downstream stakeholders."
             tags={["dbt", "Snowflake", "AWS Glue", "SQL", "Data Modeling", "ETL"]}
             metrics={[
-              { value: "30+", label: "Glue scripts replaced" },
-              { value: "200+", label: "dbt models created" },
+              { value: "32", label: "Glue scripts replaced" },
+              { value: "180+", label: "dbt models rebuilt" },
               { value: "~80%", label: "Maintenance reduction" },
             ]}
           />
@@ -709,15 +740,10 @@ export default function Portfolio() {
           />
           <CaseStudyCard
             subtitle="Side Project"
-            title="dbt-MCP: Connecting Language Models to Analytics Infrastructure"
-            description="Exploring the integration of Model Context Protocol (MCP) servers with dbt to enable AI-powered analytics workflows. Building tooling that allows LLMs to interact with data models, understand lineage, and assist with data engineering tasks — bridging the gap between modern AI capabilities and production data infrastructure."
-            tags={["MCP", "Claude API", "dbt", "Node.js", "AI/ML", "Open Source"]}
-          />
-          <CaseStudyCard
-            subtitle="Side Project"
-            title="Minecraft Bot System: AI-Powered Game Agents"
-            description="Built a Node.js-based bot system using mineflayer that connects to OpenAI's API for natural language interaction and autonomous behavior in Minecraft. Explored real-time decision-making, pathfinding, and conversational AI integration in a complex 3D environment."
-            tags={["Node.js", "mineflayer", "OpenAI API", "JavaScript", "AI Agents"]}
+            status="In development · code not yet public"
+            title="arcflow: A Python-Native dbt Alternative"
+            description="A lightweight transformation framework where SQL references are plain Python calls instead of Jinja — giving you real imports, refactoring, and type hints over your pipelines. Includes a DuckDB-backed demo covering SCD Type 2, subscription spines, sessionization, and cohort retention. The goal: dbt's layered discipline without the templating indirection."
+            tags={["Python", "DuckDB", "SQL", "CLI", "Data Modeling"]}
           />
         </div>
 
@@ -771,10 +797,10 @@ export default function Portfolio() {
             <DbtDAG />
           </div>
         </div>
-      </div>
+      </section>
 
       {/* ─── Blog ─── */}
-      <div style={containerStyle} data-section="blog">
+      <section style={containerStyle} data-section="blog">
         <SectionHeading number="03" title="Blog" id="blog" />
         <div
           style={{
@@ -784,9 +810,9 @@ export default function Portfolio() {
             padding: "1rem 2rem",
           }}
         >
-          <div
-            onClick={() => { window.location.hash = '#/blog/rebuilding-legacy-pipeline'; }}
-            style={{ cursor: 'pointer' }}
+          <a
+            href="#/blog/rebuilding-legacy-pipeline"
+            style={{ display: "block", textDecoration: "none", color: "inherit" }}
           >
             <BlogPost
               title="Rebuilding a Legacy Data Pipeline in dbt: Patterns That Scaled"
@@ -794,35 +820,12 @@ export default function Portfolio() {
               readTime="12 min"
               excerpt="Patterns, conventions, and hard-won lessons from maintaining a large dbt project through cross-functional collaboration. What works, what doesn't, and what I'd do differently."
             />
-          </div>
-          <BlogPost
-            title="From Actuarial Science to Analytics Engineering"
-            date="Coming Soon"
-            readTime="6 min"
-            excerpt="How a background in quantitative finance and risk modeling shaped my approach to data engineering — and why the skills transfer better than you'd think."
-          />
-          <BlogPost
-            title="Connecting LLMs to Your Data Stack with MCP"
-            date="Coming Soon"
-            readTime="10 min"
-            excerpt="A practical guide to building MCP server integrations that let AI assistants interact with your dbt models, query your warehouse, and understand your data lineage."
-          />
+          </a>
         </div>
-        <p
-          style={{
-            color: COLORS.textMuted,
-            fontSize: "0.85rem",
-            fontFamily: "'JetBrains Mono', monospace",
-            marginTop: "1.5rem",
-            fontStyle: "italic",
-          }}
-        >
-          More posts in progress.
-        </p>
-      </div>
+      </section>
 
       {/* ─── Resume ─── */}
-      <div style={containerStyle} data-section="resume">
+      <section style={containerStyle} data-section="resume">
         <SectionHeading number="04" title="Resume" id="resume" />
         <div
           style={{
@@ -839,7 +842,7 @@ export default function Portfolio() {
               role: "Manager, Analytics Engineering",
               company: "Bristol Myers Squibb",
               description:
-                "Lead Cell Therapy data architecture for enterprise Unified Data Model. Migrated 30+ AWS Glue scripts to 200+ dbt models. Own end-to-end data infrastructure, building Python automation that reduced manual processing by 80 hrs/week. Managing workload previously handled by 10-15 FTEs.",
+                "Lead Cell Therapy data architecture for enterprise Unified Data Model. Migrated 32 AWS Glue scripts to 180+ dbt models. Own end-to-end data infrastructure, building Python automation that reduced manual processing by 80 hrs/week. Managing workload previously handled by 10-15 FTEs.",
             },
             {
               period: "2019 – 2022",
@@ -980,7 +983,87 @@ export default function Portfolio() {
             </a>
           </div>
         </div>
-      </div>
+      </section>
+
+      {/* ─── Tools ─── */}
+      <section style={containerStyle}>
+        <SectionHeading number="05" title="Tools" id="tools" />
+        <p
+          style={{
+            color: COLORS.textDim,
+            fontSize: "0.95rem",
+            lineHeight: 1.7,
+            marginBottom: "2rem",
+            maxWidth: "600px",
+          }}
+        >
+          A few interactive tools I've built — some personal-finance, some
+          operational. Each loads on demand, so they don't ship to this page
+          unless you open one.
+        </p>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+            gap: "1rem",
+          }}
+        >
+          {[
+            {
+              href: "#/fire",
+              title: "FIRE Calculator",
+              desc: "Scenario-based early-retirement projection with sensitivity analysis.",
+            },
+            {
+              href: "#/estate",
+              title: "Estate Planner",
+              desc: "Quick what-if modeling for inheritance and gifting strategies.",
+            },
+            {
+              href: "#/command-center",
+              title: "Command Center",
+              desc: "Personal ops dashboard — a playground for layout experiments.",
+            },
+          ].map((t) => (
+            <a
+              key={t.href}
+              href={t.href}
+              style={{
+                display: "block",
+                background: COLORS.bgCard,
+                border: `1px solid ${COLORS.border}`,
+                borderRadius: "10px",
+                padding: "1.25rem 1.5rem",
+                textDecoration: "none",
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = COLORS.bgCardHover;
+                e.currentTarget.style.borderColor = COLORS.borderHover;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = COLORS.bgCard;
+                e.currentTarget.style.borderColor = COLORS.border;
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "0.95rem",
+                  fontWeight: 600,
+                  color: COLORS.text,
+                  marginBottom: "0.35rem",
+                  fontFamily: "'Space Grotesk', sans-serif",
+                }}
+              >
+                {t.title} →
+              </div>
+              <div style={{ color: COLORS.textDim, fontSize: "0.85rem", lineHeight: 1.5 }}>
+                {t.desc}
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
 
       {/* ─── Footer ─── */}
       <footer
@@ -1002,7 +1085,6 @@ export default function Portfolio() {
             { label: "GitHub", href: "https://github.com/akmiyata" },
             { label: "LinkedIn", href: "https://linkedin.com/in/akmiyata" },
             { label: "Email", href: "mailto:akmiyata@gmail.com" },
-            { label: "FIRE Calculator", href: "#/fire" },
           ].map((link, i) => (
             <a
               key={i}
